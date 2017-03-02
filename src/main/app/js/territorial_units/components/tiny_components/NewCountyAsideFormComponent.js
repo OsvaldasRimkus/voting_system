@@ -1,6 +1,10 @@
 var React = require('react');
+var Geosuggest = require('react-geosuggest').default;
 
 function NewCountyAsideForm(props) {
+    var hideOtherSuggestions = function() {
+        $('.geosuggest__suggests').hide();
+    };
     return (
         <form className="aside-county-form">
             <div className="form-group county-aside">
@@ -13,7 +17,16 @@ function NewCountyAsideForm(props) {
             </div>
             <div className="form-group county-aside">
                 <label>Adresas</label>
-                <input type="text" className="form-control" value={props.address} onChange={props.changeAddress}/>
+                <Geosuggest
+                    ref={el=>this._geoSuggest=el}
+                    placeholder=""
+                    inputClassName="form-control"
+                    country="LTU"
+                    queryDelay='500'
+                    onSuggestSelect={props.setSuggest}
+                    onActiveSuggest={hideOtherSuggestions}
+                    onChange={props.changeAddress}
+                />
             </div>
             <div className="county-form-actions">
                 <button type="submit" onClick={props.add} className="btn btn-default btn-xs ">Pridėti</button>

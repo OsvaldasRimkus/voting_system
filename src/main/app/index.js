@@ -8,15 +8,19 @@ var ReactDOM = require('react-dom');
 var Application = require('./js/Application');
 var HomePageContainer = require('./js/containers/HomePageContainer');
 var AdminPanelComponent = require('./js/components/AdminPanelComponent');
-var RepresentativePanelComponent = require('./js/components/RepresentativePanelComponent');
+var RepresentativeHomeContainer = require('./js/containers/RepresentativeHomeContainer');
+var RepresentativeProfileComponent = require('./js/components/RepresentativeProfileComponent');
+
 var TerritorialBreakdownContainer = require('./js/territorial_units/containers/TerritorialBreakdownContainer');
 var PoliticalUnitsContainer = require('./js/political_units/containers/PoliticalUnitsContainer');
 var SingleCandidatesContainer = require('./js/single_m_candidates/containers/SingleCandidatesContainer');
 var NoMatch = require('./js/config/NoMatch');
 var CountyRepresentativesDisplayContainer = require('./js/countyRepresentativesManagement/containers/CountyRepresentativesDisplayContainer');
-var SM_CountyResultsContainer = require('./js/counties_results/singlemandate/containers/SM_CountyResultsContainer');
-var MM_CountyResultsContainer = require('./js/counties_results/multimandate/containers/MM_CountyResultsContainer');
+var CountyResultsContainer = require('./js/counties_results/containers/CountyResultsContainer');
 var AdminResultsViewContainer = require('./js/admin_results_view/containers/AdminResultsViewContainer');
+var SearchCandidatesListContainer = require('./js/search/SearchCandidatesListContainer');
+var Tester = require('./js/config/Tester');
+const Login = require('./js/auth/Login');
 
 ReactDOM.render((
   <Router history={ReactRouter.hashHistory}>
@@ -29,13 +33,19 @@ ReactDOM.render((
 			      <Route path="politinis-suskirstymas" component={PoliticalUnitsContainer}/>
             <Route path="apylinkiu-rezultatai" component={AdminResultsViewContainer}/>
         </Route>
-        <Route path="atstovui/:id" component={RepresentativePanelComponent}>
+        <Route path="atstovui/:id" component={RepresentativeHomeContainer}>
+            <IndexRoute component={RepresentativeProfileComponent}/>
+            <Route path="profilis" component={RepresentativeProfileComponent}/>
             <Route path="rezultatai">
-                <Route path="vienmandaciai" component={SM_CountyResultsContainer}/>
-                <Route path="daugiamandaciai" component={MM_CountyResultsContainer}/>
+                <Route path="vienmandaciai" component={CountyResultsContainer}/>
+                <Route path="daugiamandaciai" component={CountyResultsContainer}/>
             </Route>
-            {/*<Route path="profilis" component={}/>*/}
+            
         </Route>
+        {/*<Route path="rezultatai" component={}/>*/}
+        <Route path="paieska" component={SearchCandidatesListContainer}/>
+        <Route path="prisijungti" component={Login}/>
+        <Route path="test" component={Tester}/>
         <Route path="*" component={NoMatch} />
     </Route>
   </Router>

@@ -4,6 +4,7 @@ var axios = require('axios');
 var DistrictDisplayContainer = require('./DistrictDisplayContainer');
 var TerritorialBreakdownComponent = require('../components/TerritorialBreakdownComponent');
 var AddedCountyDisplayComponent = require('../components/tiny_components/AddedCountyDisplayComponent');
+var spring = require('../../config/SpringConfig');
 
 var TerritorialBreakdownContainer = React.createClass({
     getInitialState: function() {
@@ -14,7 +15,7 @@ var TerritorialBreakdownContainer = React.createClass({
     },
     componentDidMount: function() {
         var _this = this;
-        axios.get('http://localhost:8080/api/district/')
+        axios.get(spring.localHost.concat('/api/district/'))
             .then(function(resp) {
                 _this.setState({ districts: resp.data });
             })
@@ -25,12 +26,14 @@ var TerritorialBreakdownContainer = React.createClass({
     prepareDistricts() {
         var districts = [];
         this.state.districts.forEach((d, index) => {
-            districts.push(<DistrictDisplayContainer
-                                key={index}
-                                index={index}
-                                district={d}
-                                remove={this.handleDistrictRemove}
-                           />)
+            districts.push(
+                <DistrictDisplayContainer
+                    key={index}
+                    index={index}
+                    district={d}
+                    remove={this.handleDistrictRemove}
+                />
+            );
         });
         return districts;
     },
@@ -53,14 +56,14 @@ var TerritorialBreakdownContainer = React.createClass({
     },
     handleDistrictSubmit: function() {
         var _this = this;
+        var errors = [];
         var body = {
             name: this.state.districtName,
             counties: this.state.counties
         }
         var districts = this.state.districts;
-        axios.post('http://localhost:8080/api/district/', body)
+        axios.post(spring.localHost.concat('/api/district/'), body)
             .then(function(resp) {
-                console.log(resp);
                 districts.push(resp.data);
                 _this.setState({ districts: districts,
                                  districtName: "",
@@ -69,8 +72,8 @@ var TerritorialBreakdownContainer = React.createClass({
             })
             .catch(function(err) {
                 console.log(err);
-                console.log(err.response);
-                _this.setState({ springErrors: err.response.data.errorsMessages })
+                errors.push(err.response.data.rootMessage);
+                _this.setState({ springErrors: errors.concat(err.response.data.errorsMessages) });
             });
     },
     handleDistrictRemove(idx) {

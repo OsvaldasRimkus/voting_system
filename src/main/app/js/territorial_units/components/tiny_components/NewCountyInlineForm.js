@@ -1,5 +1,6 @@
 var React = require('react');
 var Validations = require('../../../utils/Validations');
+var Geosuggest = require('react-geosuggest').default;
 
 var NewCountyInlineForm = React.createClass({
     getInitialState: function() {
@@ -8,17 +9,25 @@ var NewCountyInlineForm = React.createClass({
     submit: function() {
         var errors = Validations.checkErrorsCountyForm(this.props.name, this.props.count, this.props.address);
         if (errors.length > 0) {
-            var style={ marginTop: 10 };
-            this.setState({ jsErrors: Validations.prepareJSerrors(errors, ("Klaida registruojant apylinkę " + this.props.name), style) });
+            this.setState({ jsErrors: errors });
         } else {
             if (this.state.jsErrors.length > 0) this.setState({ jsErrors: [] });
             this.props.submit();
         }
     },
+    jsErrors: function() {
+        var style={ marginTop: 10 };
+        return Validations.prepareJSerrors(this.state.jsErrors, "Klaida registruojant apylinkę", style)
+    },
     springErrors: function() {
-        return (this.props.springErrors.length > 0) ? Validations.prepareSpringErrors(this.props.springErrors) : [];
+        return Validations.prepareSpringErrors(this.props.springErrors);
+    },
+    hideOtherSuggestions: function() {
+        $('.geosuggest__suggests').hide();
     },
     render: function() {
+        var jsErrors = (this.state.jsErrors.length > 0) ? this.jsErrors() : [];
+        var springErrors = (this.props.springErrors.length > 0) ? this.springErrors() : [];
         return (
             <div>
                 <form className="inline-add-county-form" style={{ minHeight: 45 }}>
@@ -40,12 +49,15 @@ var NewCountyInlineForm = React.createClass({
                         />
                     </div>
                     <div className="form-group">
-                        <input type="text"
-                            onChange={this.props.changeAddress}
-                            className="form-control"
-                            value={this.props.address}
+                        <Geosuggest
+                            ref={el=>this._geoSuggest=el}
                             placeholder="Adresas"
-                            min={1}
+                            inputClassName="form-control"
+                            country="lt"
+                            queryDelay='500'
+                            onSuggestSelect={this.props.setSuggest}
+                            onActiveSuggest={this.hideOtherSuggestions}
+                            onChange={this.props.changeAddress}
                         />
                     </div>
                     <div className="form-group">
@@ -58,8 +70,8 @@ var NewCountyInlineForm = React.createClass({
                     </div>
                 </form>
                 <div id="inline-form-errors">
-                    {this.state.jsErrors}
-                    {this.springErrors()}
+                    {jsErrors}
+                    {springErrors}
                 </div>
             </div>
         )

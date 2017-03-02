@@ -82,7 +82,9 @@ public class County {
 
     public void setMmResult(CountyMMResult mmResult) {
         this.mmResult = mmResult;
-        mmResult.setCounty(this);
+        if (mmResult != null) {
+            mmResult.setCounty(this);
+        }
     }
 
     public CountyResult getSmResult() {
@@ -91,7 +93,9 @@ public class County {
 
     public void setSmResult(CountySMResult smResult) {
         this.smResult = smResult;
-        this.smResult.setCounty(this);
+        if (smResult != null) {
+            smResult.setCounty(this);
+        }
     }
 
     public District getDistrict() {

@@ -2,6 +2,7 @@ var React = require('react');
 var axios = require('axios');
 var SingleMandateDistrictDisplayContainer = require('./SingleMandateDistrictDisplayContainer');
 var SingleCandidatesComponent = require('../components/SingleCandidatesComponent');
+var spring = require('../../config/SpringConfig');
 
 var SingleCandidatesContainer = React.createClass({
     getInitialState: function() {
@@ -14,7 +15,7 @@ var SingleCandidatesContainer = React.createClass({
     },
     districtsAxiosGet: function() {
         var _this = this;
-        axios.get('http://localhost:8080/api/district/')
+        axios.get(spring.localHost.concat('/api/district/'))
             .then(function(resp) {
                 _this.setState({ districts: resp.data });
             })
@@ -36,7 +37,7 @@ var SingleCandidatesContainer = React.createClass({
     },
     deleteCandidates: function(district_id) {
         var _this = this;
-        var deleteUrl = "http://localhost:8080/api/district/" + district_id + "/candidates"
+        var deleteUrl = spring.localHost.concat("/api/district/") + district_id + "/candidates";
         axios.delete(deleteUrl)
             .then(function(resp) {
                 _this.districtsAxiosGet();

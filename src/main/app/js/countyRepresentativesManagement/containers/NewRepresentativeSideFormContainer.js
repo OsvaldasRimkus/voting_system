@@ -13,15 +13,12 @@ var NewRepresentativeSideFormContainer = React.createClass ({
         OnlyDistricts = [];
         self = this;
         var DistrictsInformation = this.props.districtsData;
-        var currentDistrictName = '';
-        var currentCountyName = '';
-        var uniqueCombinationOfDistrictAndCounty = '';
         DistrictsInformation.map(function(district, index) {
-            currentDistrictName = district.name;
+            var currentDistrictName = district.name;
             var isDistrictRequiredInDistrictList = false;
             district.counties.map(function (county, index){
-                currentCountyName = county.name;
-                uniqueCombinationOfDistrictAndCounty = currentDistrictName.concat(currentCountyName);
+                var currentCountyName = county.name;
+                var uniqueCombinationOfDistrictAndCounty = currentDistrictName.concat(currentCountyName);
                 if (!self.props.uniqueDistrictAndCountyNameCombinationArray.includes(uniqueCombinationOfDistrictAndCounty)){
                     isDistrictRequiredInDistrictList = true;
                 }
@@ -42,6 +39,7 @@ var NewRepresentativeSideFormContainer = React.createClass ({
                     OnlyDistricts={OnlyDistricts}
                     CountyRepresentativesEmailsArray={this.props.CountyRepresentativesEmailsArray}
                     uniqueDistrictAndCountyNameCombinationArray={this.props.uniqueDistrictAndCountyNameCombinationArray}
+                    springErrors={this.props.springErrors}
                 />
             </div>
         )

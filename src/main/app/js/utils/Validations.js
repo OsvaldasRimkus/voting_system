@@ -3,8 +3,9 @@ var ErrorWrapper = require('../components/tiny_components/ErrorWrapper');
 var RootErrorWrapper = require('../components/tiny_components/RootErrorWrapper');
 
 var Vars = {
-    nameRegex: new RegExp(/^([a-zA-ZąčęėįšųūžĄČĘĖĮŠŲŪŽ0-9\s][^qQwWxX]*)$/),
-    partyNameRegex: new RegExp(/^([a-zA-Z][^qQwWxX]*)$/),
+    districtNameRegex: new RegExp(/^([a-zA-ZąčęėįšųūžĄČĘĖĮŠŲŪŽ\s\-][^qQwWxX0-9]*)$/),
+    countyNameRegex: new RegExp(/^([a-zA-ZąčęėįšųūžĄČĘĖĮŠŲŪŽ0-9\s\-][^qQwWxX]*)$/),
+    partyNameRegex: new RegExp(/^([a-zA-ZąčęėįšųūžĄČĘĖĮŠŲŪŽ\s\-][^qQwWxX0-9]*)$/),
     min: 3,
     max: 40
 };
@@ -31,7 +32,7 @@ var Validations = {
 
         if (name.length < Vars.min) errors.push("Apygardos pavadinimas " + Errors.toShort);
         if (name.length > Vars.max) errors.push("Apygardos pavadinimas " + Errors.toLong);
-        if (!Vars.nameRegex.test(name)) errors.push(Errors.onlyAlphas);
+        if (!Vars.districtNameRegex.test(name)) errors.push(Errors.onlyAlphas);
 
         return errors;
     },
@@ -40,7 +41,7 @@ var Validations = {
 
         if (name.length < Vars.min) errors.push("Apylinkės pavadinimas " + Errors.toShort);
         if (name.length > Vars.max) errors.push("Apylinkės pavadinimas " + Errors.toLong);
-        if (!Vars.nameRegex.test(name)) errors.push(Errors.onlyAlphas);
+        if (!Vars.countyNameRegex.test(name)) errors.push(Errors.onlyAlphas);
 
         switch (true) {
             case (count == undefined):
@@ -63,7 +64,32 @@ var Validations = {
 
         return errors;
     },
-    checkErrorsSMform: function(dictionary, spoiled) {
+    checkErrorsPartyMMform: function(dictionary) {
+        var errors = [];
+        var emptyFields = 0;
+
+        dictionary.forEach(function(value) {
+            if (value === "") {
+                emptyFields += 1;
+            } else if (isNaN(value)) {
+                errors.push(value + " " + Errors.NaNerror);
+            } else if (parseInt(value) < 0) {
+                errors.push(value + " " + Errors.negativeNumError);
+            } else if (parseInt(value) > 50000) {
+                errors.push(value + " " + Errors.positiveInfiniteNumError);
+            }
+        });
+        if (emptyFields > 0) errors.push(Errors.emptyFieldsError + "(" + emptyFields + ")");
+
+        if (emptyFields == dictionary.size + 1) {
+            var emptyForm = new Array();
+            emptyForm.push(Errors.emptyFormError);
+            errors = emptyForm;
+        }
+
+        return errors;
+    },
+    checkErrorsResultForm: function(dictionary, spoiled) {
         var errors = [];
         var emptyFields = 0;
 
@@ -90,66 +116,6 @@ var Validations = {
             }
         });
         if (emptyFields > 0) errors.push(Errors.emptyFieldsError + "(" + emptyFields + ")");
-        if (emptyFields == dictionary.size + 1) {
-            var emptyForm = new Array();
-            emptyForm.push(Errors.emptyFormError);
-            errors = emptyForm;
-        }
-
-        return errors;
-    },
-    checkErrorsPartyMMform: function(dictionary) {
-        var errors = [];
-        var emptyFields = 0;
-
-        dictionary.forEach(function(value) {
-            if (value === "") {
-                emptyFields += 1;
-            } else if (isNaN(value)) {
-                errors.push(value + " " + Errors.NaNerror);
-            } else if (parseInt(value) < 0) {
-                errors.push(value + " " + Errors.negativeNumError);
-            } else if (parseInt(value) > 50000) {
-                errors.push(value + " " + Errors.positiveInfiniteNumError);
-            }
-        });
-        if (emptyFields > 0) errors.push(Errors.emptyFieldsError + "(" + emptyFields + ")");
-        if (emptyFields == dictionary.size + 1) {
-            var emptyForm = new Array();
-            emptyForm.push(Errors.emptyFormError);
-            errors = emptyForm;
-        }
-
-        return errors;
-    },
-    checkErrorsMMform: function(dictionary, spoiled) {
-        var errors = [];
-        var emptyFields = 0;
-
-        if (spoiled == "" || spoiled == undefined) {
-            emptyFields += 1;
-        } else if (isNaN(spoiled)) {
-            errors.push(spoiled + " " + Errors.NaNerror);
-        }
-        if (parseInt(spoiled) < 0) {
-            errors.push(spoiled + " " + Errors.negativeNumError);
-        } else if (parseInt(spoiled) > 50000) {
-            errors.push(value + " " + Errors.positiveInfiniteNumError);
-        }
-
-        dictionary.forEach(function(value) {
-            if (value == "" || value == undefined) {
-                emptyFields += 1;
-            } else if (isNaN(value)) {
-                errors.push(value + " " + Errors.NaNerror);
-            } else if (parseInt(value) < 0) {
-                errors.push(value + " " + Errors.negativeNumError);
-            } else if (parseInt(value) > 50000) {
-                errors.push(value + " " + Errors.positiveInfiniteNumError);
-            }
-        });
-        if (emptyFields > 0) errors.push(Errors.emptyFieldsError + "(" + emptyFields + ")");
-
         if (emptyFields == dictionary.size + 1) {
             var emptyForm = new Array();
             emptyForm.push(Errors.emptyFormError);
@@ -187,7 +153,7 @@ var Validations = {
             preparedErrors.push(<ErrorWrapper message={errors[i]} key={i}/>);
         }
         return (
-            <RootErrorWrapper message={errors[0]} key={0} inlineStyle={style}>
+            <RootErrorWrapper message={errors[0]} inlineStyle={style}>
                 {preparedErrors}
             </RootErrorWrapper>
         );

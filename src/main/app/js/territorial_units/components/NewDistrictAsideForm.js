@@ -6,9 +6,9 @@ var NewDistrictAsideForm = React.createClass({
     getInitialState: function() {
         return ({ jsErrors: [] });
     },
-    componentDidUpdate() {
+    /*componentDidUpdate() {
         $('.toggleInput').bootstrapToggle();
-    },
+    },*/
     reportCountyErrors: function(errors, countyName) {
         if (errors.length == 0) {
             this.setState({ jsErrors: [] });

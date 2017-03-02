@@ -2,9 +2,10 @@
  * Created by osvaldas on 17.2.7.
  */
 var React = require('react');
+var ValidationsOR = require("../../utils/ValidationsOR");
+var Validations = require("../../utils/Validations");
 
 var onlyRequiredCounties = [];
-var allRepresentativesEmails = [];
 
 var NewRepresentativeSideFormComponent = React.createClass({
 
@@ -17,81 +18,32 @@ var NewRepresentativeSideFormComponent = React.createClass({
             district: 'Pasirinkite apygardą',
             county: 'Pasirinkite apylinkę',
 
-            nameCharacters: '',
-            maxNameLength: 15,
-            nameLength: '',
-            surnameCharacters: '',
-            maxSurnameLength: 20,
-            surnameLength: '',
-            emailCharacters: '',
-            emailAlreadyExists: '',
+            nameErrors: [],
+            surnameErrors: [],
+            emailErrors: [],
         }
     },
 
     componentWillMount: function () {
         onlyRequiredCounties = [];
-
-
     },
     handleNameChange: function (event) {
-        this.setState({name: event.target.value});
-
-        var input = event.target.value.trim();
-        var checkMaxLength = input.length <= this.state.maxNameLength;
-        if (!checkMaxLength){
-            this.setState({nameLength: "Vardas per ilgas: įveskite ne daugiau " + this.state.maxNameLength + " simbolių. Dabar yra: " + event.target.value.length});
-        } else {
-            this.setState({nameLength: ''});
-        }
-
-        var isFirstCharacterGood = /^[AaĄąBbCcČčDdEeĘęĖėFfGgHhIiĮįYyJjKkLlMmNnOoPpRrSsŠšTtUuŲųŪūVvZzŽž]*$/.test(input.charAt(0));
-        var areOtherCharactersGood = /^([AaĄąBbCcČčDdEeĘęĖėFfGgHhIiĮįYyJjKkLlMmNnOoPpRrSsŠšTtUuŲųŪūVvZzŽž\s\-]*)$/.test(input);
-
-        if(!isFirstCharacterGood || !areOtherCharactersGood){
-            this.setState({nameCharacters: "Vardas turi netinkamus simbolius: įveskite tik lietuviškas raides"});
-        } else {
-            this.setState({nameCharacters: ''});
-        }
+        this.setState({
+            name: event.target.value,
+            nameErrors: ValidationsOR.nameValidation(event.target.value.trim())
+        });
     },
     handleSurnameChange: function (event) {
-        this.setState({surname: event.target.value});
-
-        var input = event.target.value.trim();
-        var checkMaxLength = input.length <= this.state.maxSurnameLength;
-        if (!checkMaxLength){
-            this.setState({surnameLength: "Pavardė per ilga: įveskite ne daugiau " + this.state.maxSurnameLength + " simbolių. Dabar yra: " + event.target.value.length});
-        } else {
-            this.setState({surnameLength: ''});
-        }
-
-        var isFirstCharacterGood = /^[AaĄąBbCcČčDdEeĘęĖėFfGgHhIiĮįYyJjKkLlMmNnOoPpRrSsŠšTtUuŲųŪūVvZzŽž]*$/.test(input.charAt(0));
-        var areOtherCharactersGood = /^([AaĄąBbCcČčDdEeĘęĖėFfGgHhIiĮįYyJjKkLlMmNnOoPpRrSsŠšTtUuŲųŪūVvZzŽž\s\-]*)$/.test(input);
-
-        if(!isFirstCharacterGood || !areOtherCharactersGood){
-            this.setState({surnameCharacters: "Pavardė turi netinkamus simbolius: įveskite tik lietuviškas raides"});
-        } else {
-            this.setState({surnameCharacters: ''});
-        }
+        this.setState({
+            surname: event.target.value,
+            surnameErrors: ValidationsOR.nameValidation(event.target.value.trim())
+        });
     },
     hendleEmailChange: function (event) {
-        this.setState({email: event.target.value});
-        allRepresentativesEmails = this.props.CountyRepresentativesEmailsArray;
-
-        var checkIfOnlyCharacters = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(event.target.value);
-        if(!checkIfOnlyCharacters){
-            this.setState({emailCharacters: "El. pašto adreso pavyzdys: vartotojas@e-mail.lt"});
-        } else {
-            this.setState({emailCharacters: ''});
-        }
-        // console.log(allRepresentativesEmails);
-
-        var doesEmailAlreadyExists = false;
-        doesEmailAlreadyExists = allRepresentativesEmails.includes(event.target.value.toLowerCase());
-        if(doesEmailAlreadyExists){
-            this.setState({emailAlreadyExists: "Toks el. pašto adresas jau yra sistemoje."});
-        } else {
-            this.setState({emailAlreadyExists: ''});
-        }
+        this.setState({
+            email: event.target.value,
+            emailErrors: ValidationsOR.emailValidation(event.target.value.trim(), this.props.CountyRepresentativesEmailsArray)
+        });
     },
     handleDistrictChange: function (event) {
         this.setState({district: event.target.value})
@@ -106,7 +58,6 @@ var NewRepresentativeSideFormComponent = React.createClass({
 
     changePossibleCounties: function (event) {
         onlyRequiredCounties = [];
-        // console.log("click");
         var self = this;
         var matchFound = false;
         var districtToLookFor = event.target.value;
@@ -118,13 +69,9 @@ var NewRepresentativeSideFormComponent = React.createClass({
             currentDistrictObject = district;
             currentDistrictName = district.name;
             if(district.name == districtToLookFor){
-                // console.log("match");
                 matchFound = true;
                 onlyRequiredCounties = [];
                 district.counties.map(function (county, index) {
-                    // console.log("CHECK HERE");
-                    // console.log(county);
-                    // console.log("END");
                     currentCountyName = county.name;
                     uniqueCombinationOfDistrictAndCounty = currentDistrictName.concat(currentCountyName);
                     if(!self.props.uniqueDistrictAndCountyNameCombinationArray.includes(uniqueCombinationOfDistrictAndCounty)){
@@ -132,8 +79,6 @@ var NewRepresentativeSideFormComponent = React.createClass({
                     }
                 });
                 self.setState({countiesOfDistrict: onlyRequiredCounties})
-            } else {
-                // console.log("no match");
             }
             if(matchFound == false){
                 onlyRequiredCounties = [];
@@ -142,19 +87,22 @@ var NewRepresentativeSideFormComponent = React.createClass({
         });
     },
 
-    onSubmit: function () {
-        var tempName = this.state.name[0].toUpperCase() + this.state.name.substring(1).toLowerCase();
-        var tempSurname = this.state.surname[0].toUpperCase() + this.state.surname.substring(1).toLowerCase();
+    onSubmit: function (event) {
+        var tempName = this.state.name.trim()[0].toUpperCase() + this.state.name.trim().substring(1).toLowerCase();
+        var tempSurname = this.state.surname.trim()[0].toUpperCase() + this.state.surname.trim().substring(1).toLowerCase();
         tempSurname[0].toUpperCase();
         var tempEmail = this.state.email.toLowerCase();
         this.props.newRep(tempName, tempSurname, tempEmail, this.state.district, this.state.county);
-        // this.props.newRep(this.state.name, this.state.surname, this.state.email, this.state.district, this.state.county);
         this.setState({name: ''});
         this.setState({surname: ''});
         this.setState({email: ''});
         this.setState({district: 'Pasirinkite apygardą'});
         this.setState({county: 'Pasirinkite apylinkę'});
-        this.changePossibleCounties();
+        this.changePossibleCounties(event);
+    },
+
+    springErrors: function() {
+        return Validations.prepareSpringErrors(this.props.springErrors, {marginTop: 10});
     },
 
     render: function () {
@@ -171,21 +119,20 @@ var NewRepresentativeSideFormComponent = React.createClass({
             return <option key={X.id}>{X.name}</option>;
         };
 
+        var springErrors = (this.props.springErrors.length > 0) ? this.springErrors() : [];
+
         return (
             <form>
                 <div className="form-group">
                     <label htmlFor="inputCounty">Atstovo vardas</label>
                     <input type="text" className="form-control" value={this.state.name} onChange={this.handleNameChange}/>
-                    <div style={{color: 'red'}}>{this.state.nameCharacters}</div>
-                    <div style={{color: 'red'}}>{this.state.nameLength}</div>
+                    {this.state.nameErrors}
                     <label htmlFor="inputCounty">Atstovo pavardė</label>
                     <input type="text" className="form-control" value={this.state.surname} onChange={this.handleSurnameChange}/>
-                    <div style={{color: 'red'}}>{this.state.surnameCharacters}</div>
-                    <div style={{color: 'red'}}>{this.state.surnameLength}</div>
+                    {this.state.surnameErrors}
                     <label htmlFor="inputCounty">Atstovo el. paštas</label>
                     <input type="text" className="form-control"  value={this.state.email} onChange={this.hendleEmailChange}/>
-                    <div style={{fontStyle: 'italic'}}>{this.state.emailCharacters}</div>
-                    <div style={{color: 'red'}}>{this.state.emailAlreadyExists}</div>
+                    {this.state.emailErrors}
                     <label htmlFor="inputCounty" >Atstovo apygarda</label>
                     <select className="form-control" value={this.state.district} onChange={this.callHelperFunction}>
                         <option>Pasirinkite apygardą</option>;
@@ -199,12 +146,9 @@ var NewRepresentativeSideFormComponent = React.createClass({
                 </div>
                 <div>
                     <button type="submit" disabled={
-                        this.state.nameCharacters ||
-                        this.state.surnameCharacters ||
-                        this.state.nameLength ||
-                        this.state.surnameLength ||
-                        this.state.emailCharacters ||
-                        this.state.emailAlreadyExists ||
+                        this.state.nameErrors.length > 0 ||
+                        this.state.surnameErrors.length > 0 ||
+                        this.state.emailErrors.length > 0 ||
                         this.state.district == 'Pasirinkite apygardą' ||
                         this.state.county == 'Pasirinkite apylinkę' ||
                         this.state.name == '' ||
@@ -212,6 +156,7 @@ var NewRepresentativeSideFormComponent = React.createClass({
                         this.state.email == ''
                     } className="btn btn-primary btn-md" onClick={this.onSubmit} style={{ marginTop: 10 }} >Sukurti</button>
                 </div>
+                {springErrors}
 
             </form>
         )

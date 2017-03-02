@@ -10,15 +10,7 @@ var styles = {
 
 var AdminPanelComponent = React.createClass({
 		getInitialState: function () {
-				return ({
-						tagIds: {
-								location1: styles.passive,
-								location2: styles.passive,
-								location3: styles.passive,
-								location4: styles.passive,
-								location5: styles.passive
-						}
-				});
+				return ({ tagIds: this.setBackgroundsByLocation() });
 	  },
 		resetButtonBackgrounds: function() {
 	      this.setState({
@@ -61,6 +53,35 @@ var AdminPanelComponent = React.createClass({
 						this.setBackgrounds(location5);
 		    }
 	  },
+		setBackgroundsByLocation: function() {
+				var tagIds = {
+						location1: styles.passive,
+						location2: styles.passive,
+						location3: styles.passive,
+						location4: styles.passive,
+						location5: styles.passive
+				}
+
+				switch (this.props.location.pathname) {
+					case '/administravimas/teritorinis-suskirstymas':
+						tagIds.location1 = styles.active;
+						break;
+					case '/administravimas/apygardu-kandidatai':
+						tagIds.location2 = styles.active;
+						break;
+					case '/administravimas/apylinkiu-atstovai':
+						tagIds.location3 = styles.active;
+						break;
+					case '/administravimas/politinis-suskirstymas':
+						tagIds.location4 = styles.active;
+						break;
+					case '/administravimas/apylinkiu-rezultatai':
+						tagIds.location5 = styles.active;
+				}
+
+				return tagIds;
+
+		},
 	  render: function() {
 	  		return (
 						<div>
@@ -92,7 +113,7 @@ var AdminPanelComponent = React.createClass({
 																className="adminPanelButton"
 																id="location3"
 																style={this.state.tagIds.location3}>
-																<img src="app/imgs/representative.png" style={ styles.image }/>
+																<img src="app/imgs/representative1.png" style={ styles.image }/>
 																<p>Apylinkių atstovai</p>
 														</Link>
 												</li>

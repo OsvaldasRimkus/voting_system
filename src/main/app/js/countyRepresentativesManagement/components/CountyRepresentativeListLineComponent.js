@@ -6,7 +6,7 @@ var ConfirmAction = require('../../components/tiny_components/ConfirmAction');
 
 var CountyRepresentativeListLineComponent = React.createClass ({
     onRemoveRep: function () {
-        this.props.onDeleteRepresentative(this.props.repData.id);
+        this.props.onDeleteRepresentative(this.props.repData.id, this.props.index);
     },
 
     render: function () {
@@ -19,18 +19,20 @@ var CountyRepresentativeListLineComponent = React.createClass ({
 
                         {/*<div className="col-md-2">{this.props.repData.firstName}</div>*/}
                         {/*<div className="col-md-2">{this.props.repData.lastName}</div>*/}
-                        <div className="col-md-3">{this.props.repData.county.name}</div>
+                        <div className="col-md-4">{this.props.repData.countyName} ({this.props.repData.districtName})</div>
 
-                        <div className="col-md-4">{this.props.repData.email}</div>
+                        <div className="col-md-3">{this.props.repData.email}</div>
                         <div className="col-md-1" style={{ textAlign: 'center' }}>
                             <ConfirmAction
-                                title="Ar tikrai norite pašalinti apygardą?"
-                                body="Duomenų atstatymas neįmanomas."
+                                title={"Norite pašalinti " + this.props.repData.firstName + " " + this.props.repData.lastName + " iš apylinkės " + this.props.repData.countyName +" atstovo pareigų ?"}
+                                body="Duomenų atstatymas bus neįmanomas."
                                 onConfirm={this.onRemoveRep}
                             >
-                                <span className="glyphicon glyphicon-remove-sign remove-representative confirmation-buttons"
+                                <span
+                                    className="glyphicon glyphicon-remove-sign remove-representative confirmation-buttons"
                                     id={"remove-representative-" + this.props.id}
-                                ></span>
+                                >
+                                </span>
                             </ConfirmAction>
                         </div>
 

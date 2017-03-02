@@ -4,141 +4,83 @@
 var React = require ('react');
 var axios = require ('axios');
 var CountyRepresentativesDisplayComponent = require('../components/CountyRepresentativesDisplayComponent');
+var spring = require('../../config/SpringConfig');
 
 var CountyRepresentativesDisplayContainer = React.createClass({
 
     getInitialState: function () {
-        return {
+        return ({
             representatives: [],
             districts: [],
             newRepresentative: {
                 firstName: "vardas",
                 lastName: "pavarde",
-                county: {
-                    id: 0
-                }
-            }
-        }
+                county: { id: 0 }
+            },
+            springErrors: []
+        });
     },
 
     componentDidMount: function () {
         var self = this;
-        //gets all representatives
-        axios.get('http://localhost:8080//api/county-rep')
-            .then(function(response){
-              // console.log("RESPONSE.DATA");
-              // console.log(response.data);
-                self.setState({representatives: response.data});
-            })
-            .catch(function(error){
-              console.log("ERROR");
-                console.log(error);
-            });
-        // gets all districts
-        axios.get('http://localhost:8080/api/district')
-            .then(function (response){
-                // console.log("RESPONSE.DATA");
-                // console.log(response.data);
-                self.setState({districts: response.data});
-            })
+        axios
+            .all([
+                axios.get(spring.localHost.concat('/api/county-rep')),
+                axios.get(spring.localHost.concat('/api/district'))
+            ])
+            .then(axios.spread(function(countyReps, districts) {
+                self.setState({
+                    representatives: countyReps.data,
+                    districts: districts.data
+                });
+            }))
             .catch(function(error){
                 console.log(error);
-            });
+            })
     },
 
-    handleDeleteRepresentative: function (repId) {
+    handleDeleteRepresentative: function (repId, index) {
         var self = this;
-        var address = 'http://localhost:8080/api/county-rep/';
-        var addressEnding = repId.toString();
-        var newAddress = address.concat(addressEnding);
-        axios.delete(newAddress)
+        var deleteUrl = spring.localHost.concat('/api/county-rep/') + repId;
+        axios.delete(deleteUrl)
             .then(function(response){
-                // console.log("delete passed");
-                // console.log(response);
-                // gets updated list and updates the state
-                // ---------------------------------------
-                axios.get('http://localhost:8080/api/county-rep')
-                    .then(function(response){
-                        self.setState({representatives: response.data});
-                        // console.log("new representatives list received and state updated")
-                        // console.log(response.data);
-                    })
-                    .catch(function(error){
-                        console.log(error);
-                    });
-                // ---------------------------------------
+                var representatives = self.state.representatives;
+                representatives.splice(index, 1);
+                self.setState({representatives: representatives});
             })
             .catch(function (error) {
-                console.log("delete failed");
                 console.log(error);
             });
-
-        //updates all representatives
-        axios.get('http://localhost:8080//api/county-rep')
-            .then(function(response){
-                // console.log("RESPONSE.DATA");
-                // console.log(response.data);
-                self.setState({representatives: response.data});
-            })
-            .catch(function(error){
-                console.log("ERROR");
-                console.log(error);
-            });
-
-        // updates all districts
-        axios.get('http://localhost:8080/api/district')
-            .then(function (response){
-                self.setState({districts: response.data});
-            })
-            .catch(function(error){
-                console.log("ERROR");
-                console.log(error);
-            });
-
     },
 
     newRep: function (name, surname, email, district, county) {
         //e.preventDefault();
         var self = this;
+        var errors = [];
         var countyId = this.getCountyId(district, county);
 
-        var RequestBody = {"firstName": name, "lastName": surname, "email": email, "county": {"id": countyId}};
+        var RequestBody = {"firstName": name, "lastName": surname, "email": email, "countyId": countyId};
 
-        axios.post('http://localhost:8080/api/county-rep', RequestBody)
+        axios.post(spring.localHost.concat('/api/county-rep'), RequestBody)
             .then(function(response){
-                // console.log("POST RESPONSE");
-                // console.log(response.data);
-                axios.get('http://localhost:8080//api/county-rep')
-                    .then(function(response){
-                        self.setState({representatives: response.data});
-                        // console.log(response.data);
-                    })
-                    .catch(function(error){
-                        console.log("ERROR");
-                        console.log(error);
-                    });
+                var actualRepresentatives = self.state.representatives;
+                actualRepresentatives.push(response.data);
+                self.setState({ representatives: actualRepresentatives, newRepresentative: response.data });
             })
             .catch(function(error){
-                console.log("ERROR");
                 console.log(error);
+                errors.push(error.response.data.rootMessage);
+                self.setState({ springErrors: errors.concat(error.response.data.errorsMessages) });
             });
-        this.setState({newRepresentative: RequestBody});
     },
 
-        // gets County ID of specific county that needs to be assigned a representative aacording to county name
     getCountyId: function (districtName, countyName) {
         var CountyId;
         this.state.districts.map(function(district, index){
             if(district.name == districtName){
-                // console.log("match");
                 district.counties.map(function (county, index) {
-                    if(county.name == countyName){
-                        CountyId = county.id;
-                        // console.log(CountyId);
-                    }
+                    if(county.name == countyName) CountyId = county.id;
                 });
-            } else {
-                // console.log("county name did not match");
             }
         });
         return CountyId;
@@ -152,6 +94,7 @@ var CountyRepresentativesDisplayContainer = React.createClass({
                     onDeleteRepresentative={this.handleDeleteRepresentative}
                     newRep={this.newRep}
                     districtsData={this.state.districts}
+                    springErrors={this.state.springErrors}
                 />
             </div>
         )

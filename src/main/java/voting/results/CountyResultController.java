@@ -68,8 +68,8 @@ public class CountyResultController {
         resultService.confirmCountyResult(resultId);
     }
 
-    @PostMapping(path = "delete")
-    public void deleteCountyResult(@RequestParam Long resultId) {
+    @DeleteMapping(path = "{id}")
+    public void deleteCountyResult(@PathVariable(name = "id") Long resultId) {
         resultService.deleteCountyResult(resultId);
     }
 

@@ -11,7 +11,7 @@ var HomePageComponent = React.createClass({
 
                 <div className="homePageButtonsRow">
                     <div className="col-sm-4">
-                        <Link to="rezultatai" className="NoUnderlineLink" href="#" title="title">
+                        <Link to="paieska" className="NoUnderlineLink" href="#" title="title">
                             <button className="frontPageButton" id="buttonElectionResults"><span className="glyphicon glyphicon-search"></span><div className="innerButtonDiv">{this.props.results}</div></button>
                         </Link>
                     </div>

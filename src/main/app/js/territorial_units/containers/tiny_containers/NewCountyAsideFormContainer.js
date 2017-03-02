@@ -15,14 +15,19 @@ var  NewCountyAsideFormContainer = React.createClass({
       this.props.reportCountyErrors([]);
     },
     handleCountyAdd() {
-        var errors = Validations.checkErrorsCountyForm(this.state.countyName, this.state.voterCount, this.state.countyAddress);
+        var lithuaniatedAddress = this.state.countyAddress.replace("Lithuania", "Lietuva");
+        var errors = Validations.checkErrorsCountyForm(
+            this.state.countyName,
+            this.state.voterCount,
+            lithuaniatedAddress
+        );
         if (errors.length != 0) {
             this.props.reportCountyErrors(errors, this.state.countyName);
         } else {
             var body = {
                 name: this.state.countyName,
                 voterCount: this.state.voterCount,
-                address: this.state.countyAddress
+                address: lithuaniatedAddress
             };
             this.props.addCounty(body);
             this.setState({ showAsideForm: false, countyName: "", voterCount: undefined, countyAddress: "" });
@@ -35,8 +40,11 @@ var  NewCountyAsideFormContainer = React.createClass({
     handleVoterCountChange: function(e) {
         this.setState({ voterCount: e.target.value});
     },
-    handleAddressChange: function(e) {
-        this.setState({ countyAddress: e.target.value});
+    handleAddressChange: function(value) {
+        this.setState({ countyAddress: value});
+    },
+    setSuggest: function(suggest) {
+        this.setState({ countyAddress: suggest.label });
     },
     render: function() {
         if (this.state.showAsideForm) {
@@ -49,6 +57,7 @@ var  NewCountyAsideFormContainer = React.createClass({
                       name={this.state.countyName}
                       count={this.state.voterCount}
                       address={this.state.countyAddress}
+                      setSuggest={this.setSuggest}
                    />
         } else {
             return <NewCountyFormButton

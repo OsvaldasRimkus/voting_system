@@ -17,14 +17,15 @@ var CountyRepresentativesDisplayComponent = React.createClass ({
             CountyRepresentativesArray.push(
                 <CountyRepresentativeListLineComponent
                     repData={rep}
-                    id={index}
+                    index={index}
+                    id={rep.id}
                     key={index}
                     onDeleteRepresentative={_this.props.onDeleteRepresentative}
                 />
             );
             CountyRepresentativesEmailsArray.push(rep.email);
-            var RepresentativeIsFromDistrict = rep.county.districtName;
-            var RepresentativeIsFromCounty = rep.county.name;
+            var RepresentativeIsFromDistrict = rep.districtName;
+            var RepresentativeIsFromCounty = rep.countyName;
             var UniqueCombinaitonOfDistrictAndCounty = RepresentativeIsFromDistrict.concat(RepresentativeIsFromCounty);
             ArrayOfUniqueCombinationsOfDistrictAndCountyNames.push(UniqueCombinaitonOfDistrictAndCounty);
         });
@@ -39,8 +40,8 @@ var CountyRepresentativesDisplayComponent = React.createClass ({
                             <div>
                                 <div style={{height: "20px"}}>
                                     <div className="col-md-4">Atstovas</div>
-                                    <div className="col-md-3">Apylinkė</div>
-                                    <div className="col-md-4">Atstovo el. paštas</div>
+                                    <div className="col-md-4">Apylinkė</div>
+                                    <div className="col-md-3">Atstovo el. paštas</div>
                                     <div className="col-md-1">Trinti</div>
                                 </div>
                             </div>
@@ -54,6 +55,7 @@ var CountyRepresentativesDisplayComponent = React.createClass ({
                                 districtsData={this.props.districtsData}
                                 CountyRepresentativesEmailsArray={CountyRepresentativesEmailsArray}
                                 uniqueDistrictAndCountyNameCombinationArray={ArrayOfUniqueCombinationsOfDistrictAndCountyNames}
+                                springErrors={this.props.springErrors}
                             />
                         </div>
                     </div>

@@ -100,6 +100,8 @@ public class ResultServiceImpl implements ResultService {
         }
         CountyResult cr = (CountyResult) result;
         cr.setConfirmed(true);
+        resultRepository.save(cr);
+        // TODO: finish
         // TODO: update district result on confirm
         // updateDistrictResult(cr.getCounty().getDistrict());
     }
@@ -111,10 +113,21 @@ public class ResultServiceImpl implements ResultService {
         if (!isCountyResult(result)) {
             throw new RuntimeException("cannot confirm district result");
         }
+
         CountyResult cr = (CountyResult) result;
+        County county = cr.getCounty();
+
+        //TODO: temp hack
+        if (result instanceof CountySMResult) {
+            county.setSmResult(null);
+        } else {
+            county.setMmResult(null);
+        }
         resultRepository.delete(id);
+
+
         // TODO: update district result on confirm
-        // updateDistrictResult(cr.getCounty().getDistrict());
+
     }
 
 

@@ -51,11 +51,11 @@ public class PartyServiceLoggingAspect {
 
     @AfterReturning(pointcut = "saveParty()", returning = "returnValue")
     public void afterSavePartyWithCandidates(JoinPoint jp, PartyRepresentation returnValue) {
-        String[] ids = Extractor.extractIdsFromCandidates(returnValue.getCandidates());
-        logger.debug(String.format(
-                "Political party created [id: %d] with candidates [ids: %s] : %s",
-                returnValue.getId(), Arrays.toString(ids), jp.toLongString())
-        );
+//        String[] ids = Extractor.extractIdsFromCandidates(returnValue.getCandidates());
+//        logger.debug(String.format(
+//                "Political party created [id: %d] with candidates [ids: %s] : %s",
+//                returnValue.getId(), Arrays.toString(ids), jp.toLongString())
+//        );
     }
 
     @Pointcut("execution(* voting.controller.PartyController.deleteParty(..)) && args(id)")
@@ -63,11 +63,11 @@ public class PartyServiceLoggingAspect {
 
     @After(value = "deleteParty(id)", argNames = "jp,id")
     public void afterDeleteParty(JoinPoint jp, Long id) {
-        String[] ids = Extractor.extractIdsFromOrphanCandidates(partyService.getParty(id));
-        logger.debug(String.format(
-                "Political party deleted [id: %d] with candidates (districtless) [ids: %s] : %s",
-                id, Arrays.toString(ids), jp.toLongString())
-        );
+//        String[] ids = Extractor.extractIdsFromOrphanCandidates(partyService.getParty(id));
+//        logger.debug(String.format(
+//                "Political party deleted [id: %d] with candidates (districtless) [ids: %s] : %s",
+//                id, Arrays.toString(ids), jp.toLongString())
+//        );
     }
 
     @Pointcut("execution(* voting.controller.PartyController.deleteCandidateList(..)) && args(id)")
@@ -75,10 +75,10 @@ public class PartyServiceLoggingAspect {
 
     @AfterReturning(value = "deleteCandidateList(id)", argNames = "jp,id")
     public void afterDeletingPartyCandidateList(JoinPoint jp, Long id) {
-        String[] ids = Extractor.extractIdsFromOrphanCandidates(partyService.getParty(id));
-        logger.debug(String.format(
-                "Party [id: %d] candidates (districtless) [ids: %s] deleted : %s",
-                id, Arrays.toString(ids), jp.toLongString())
-        );
+//        String[] ids = Extractor.extractIdsFromOrphanCandidates(partyService.getParty(id));
+//        logger.debug(String.format(
+//                "Party [id: %d] candidates (districtless) [ids: %s] deleted : %s",
+//                id, Arrays.toString(ids), jp.toLongString())
+//        );
     }
 }
